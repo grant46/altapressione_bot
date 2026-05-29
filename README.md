@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 ### 2. Configura le API key
 
-Apri il file `.env` e inserisci le tue chiavi:
+Crea il file `.env` e inserisci le tue chiavi:
 
 ```env
 TELEGRAM_TOKEN=il_tuo_token_telegram
