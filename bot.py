@@ -10,7 +10,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from database import init_db, save_user, get_all_users, deactivate_user
 from news import get_news
-from weather import get_weather, weather_emoji
+from weather_api import get_weather, weather_emoji
 from ai_bulletin import generate_bulletin
 
 load_dotenv()
