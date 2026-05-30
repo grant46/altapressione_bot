@@ -139,7 +139,8 @@ async def preview(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         await update.message.reply_text(
             bulletin,
-            parse_mode="Markdown"
+            parse_mode="Markdown",
+            disable_web_page_preview=True
         )
     except Exception as e:
         logger.error(f"Errore anteprima: {e}")
@@ -178,7 +179,8 @@ async def send_daily_bulletin(app: Application):
             await app.bot.send_message(
                 chat_id=chat_id,
                 text=bulletin,
-                parse_mode="Markdown"
+                parse_mode="Markdown",
+                disable_web_page_preview=True
             )
             logger.info(f"Bollettino inviato a {name} ({chat_id})")
         except Exception as e:
