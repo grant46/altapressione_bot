@@ -1,100 +1,279 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Morning Bot — Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     :root {
-      --bg: #0a0a0f; --surface: #13131a; --surface2: #1c1c26;
-      --border: #2a2a3a; --accent: #6ee7b7; --accent2: #818cf8;
-      --accent3: #fbbf24; --text: #e2e8f0; --muted: #64748b;
+      --bg: #0d1f14;
+      --surface: rgba(15,30,20,0.85);
+      --surface2: rgba(20,40,28,0.9);
+      --border: rgba(110,231,183,0.15);
+      --accent: #6ee7b7;
+      --accent2: #34d399;
+      --accent3: #fbbf24;
+      --accent4: #86efac;
+      --text: #ecfdf5;
+      --muted: #6b9e82;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
-    body::before {
-      content: ''; position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 0;
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
     }
-    .bg-glow { position: fixed; width: 600px; height: 600px; border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0; }
-    .bg-glow-1 { background: rgba(110,231,183,0.06); top: -200px; left: -200px; }
-    .bg-glow-2 { background: rgba(129,140,248,0.05); bottom: -200px; right: -200px; }
+
+    /* NATURE BACKGROUND */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 20%, rgba(16,85,40,0.5) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 90% 80%, rgba(5,60,25,0.6) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 50% 50%, rgba(20,100,50,0.2) 0%, transparent 70%),
+        linear-gradient(160deg, #071410 0%, #0d1f14 40%, #091a10 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* FOREST PARTICLES */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 20% 30%, rgba(110,231,183,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 70%, rgba(110,231,183,0.3) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 80% 20%, rgba(52,211,153,0.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 85%, rgba(134,239,172,0.25) 0%, transparent 100%),
+        radial-gradient(1px 1px at 10% 60%, rgba(110,231,183,0.2) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
     .app { position: relative; z-index: 1; }
+
     header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 24px 40px; border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(10px); background: rgba(10,10,15,0.8);
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      background: rgba(7,20,10,0.7);
       position: sticky; top: 0; z-index: 100;
     }
-    .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; }
-    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.8)} }
-    .user-badge { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 8px 16px; font-size: 0.85rem; }
-    .user-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: #000; }
-    .logout-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.85rem; padding: 2px 6px; border-radius: 6px; transition: color 0.2s; }
+
+    .logo {
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem;
+      letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px;
+      color: var(--accent);
+    }
+    .logo-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); box-shadow: 0 0 16px var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
+
+    .user-badge {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(110,231,183,0.08);
+      border: 1px solid var(--border);
+      border-radius: 100px; padding: 8px 16px; font-size: 0.85rem;
+    }
+    .user-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #059669);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: #000;
+    }
+    .logout-btn {
+      background: none; border: none; color: var(--muted);
+      cursor: pointer; font-size: 0.85rem; padding: 2px 6px;
+      border-radius: 6px; transition: color 0.2s;
+    }
     .logout-btn:hover { color: #f87171; }
-    main { padding: 40px; max-width: 1200px; margin: 0 auto; }
-    #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh; text-align: center; gap: 24px; }
-    .login-title { font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; }
+
+    main { padding: 40px; max-width: 1280px; margin: 0 auto; }
+
+    /* LOGIN */
+    #login-section {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; min-height: 75vh; text-align: center; gap: 20px;
+    }
+    .login-icon { font-size: 4rem; margin-bottom: 8px; filter: drop-shadow(0 0 20px rgba(110,231,183,0.4)); }
+    .login-title {
+      font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800;
+      letter-spacing: -0.04em; line-height: 1.1; color: var(--text);
+    }
     .login-title span { color: var(--accent); }
-    .login-sub { color: var(--muted); font-size: 1.05rem; max-width: 400px; line-height: 1.6; }
-    .login-input { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; font-size: 1rem; color: var(--text); width: 300px; font-family: 'DM Sans', sans-serif; outline: none; transition: border-color 0.2s; }
-    .login-input:focus { border-color: var(--accent); }
-    .tg-login-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: #000; border: none; border-radius: 12px; padding: 14px 28px; font-size: 1rem; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
-    .tg-login-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .login-sub { color: var(--muted); font-size: 1rem; max-width: 380px; line-height: 1.7; }
+    .login-input {
+      background: rgba(110,231,183,0.06); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px 20px; font-size: 1rem;
+      color: var(--text); width: 300px; font-family: 'DM Sans', sans-serif;
+      outline: none; transition: all 0.2s; text-align: center;
+    }
+    .login-input:focus { border-color: var(--accent); background: rgba(110,231,183,0.1); box-shadow: 0 0 0 3px rgba(110,231,183,0.1); }
+    .login-hint { color: var(--muted); font-size: 0.78rem; }
+    .tg-login-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--accent); color: #052e16; border: none;
+      border-radius: 14px; padding: 14px 32px; font-size: 1rem;
+      font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s; letter-spacing: -0.01em;
+    }
+    .tg-login-btn:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(110,231,183,0.25); }
+    .error-msg { color: #f87171; font-size: 0.85rem; display: none; }
+
+    /* DASHBOARD */
     #dashboard-section { display: none; }
-    .greeting { margin-bottom: 32px; }
-    .greeting h1 { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; }
-    .greeting p { color: var(--muted); margin-top: 4px; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
-    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; position: relative; overflow: hidden; }
-    .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
-    .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
-    .stat-value { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 700; color: var(--accent); }
-    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
-    @media (max-width: 768px) { .content-grid { grid-template-columns: 1fr; } main { padding: 20px; } header { padding: 16px 20px; } .login-title { font-size: 2rem; } }
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 28px; }
-    .card-title { font-family: 'Syne', sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
-    .card-title-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
-    .weather-big { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
-    .weather-emoji { font-size: 3.5rem; line-height: 1; }
-    .weather-temp { font-family: 'Syne', sans-serif; font-size: 3rem; font-weight: 800; letter-spacing: -0.04em; }
-    .weather-desc { color: var(--muted); font-size: 0.9rem; margin-top: 2px; }
-    .weather-details { display: flex; gap: 12px; flex-wrap: wrap; }
-    .weather-detail { background: var(--surface2); border-radius: 10px; padding: 10px 16px; font-size: 0.85rem; }
-    .news-list { display: flex; flex-direction: column; gap: 10px; }
-    .news-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px; background: var(--surface2); border-radius: 12px; text-decoration: none; color: var(--text); transition: all 0.2s; border: 1px solid transparent; }
-    .news-item:hover { border-color: var(--accent); }
-    .news-flag { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
-    .news-title { font-size: 0.88rem; line-height: 1.5; font-weight: 500; }
-    .news-source { font-size: 0.72rem; color: var(--muted); margin-top: 3px; }
-    .bulletin-list { display: flex; flex-direction: column; gap: 10px; }
-    .bulletin-item { padding: 16px; background: var(--surface2); border-radius: 12px; border-left: 3px solid var(--accent2); cursor: pointer; transition: all 0.2s; }
-    .bulletin-item:hover { background: var(--surface); }
-    .bulletin-date { font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; }
-    .bulletin-preview { font-size: 0.85rem; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 20px; }
-    .modal-overlay.open { display: flex; }
-    .modal { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 32px; max-width: 600px; width: 100%; max-height: 80vh; overflow-y: auto; }
-    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .modal-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; }
-    .modal-close { background: var(--surface2); border: none; color: var(--muted); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; font-size: 1rem; }
-    .modal-content { font-size: 0.9rem; line-height: 1.7; white-space: pre-wrap; }
-    .loader { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .empty { color: var(--muted); font-size: 0.9rem; text-align: center; padding: 20px; }
+    .greeting { margin-bottom: 28px; }
+    .greeting h1 {
+      font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800;
+      letter-spacing: -0.03em; color: var(--text);
+    }
+    .greeting p { color: var(--muted); margin-top: 4px; font-size: 0.9rem; }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 14px; margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px; position: relative; overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+    }
+    .stat-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+    .stat-value { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 700; color: var(--accent); }
+
+    .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    .content-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 24px; backdrop-filter: blur(12px);
+    }
     .card-full { grid-column: 1 / -1; }
-    .error-msg { color: #f87171; font-size: 0.85rem; margin-top: 8px; }
+    .card-title {
+      font-family: 'Syne', sans-serif; font-size: 0.75rem; text-transform: uppercase;
+      letter-spacing: 0.12em; color: var(--muted); margin-bottom: 18px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+    /* WEATHER */
+    .weather-big { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; }
+    .weather-emoji { font-size: 3rem; line-height: 1; }
+    .weather-temp { font-family: 'Syne', sans-serif; font-size: 2.8rem; font-weight: 800; letter-spacing: -0.04em; color: var(--accent); }
+    .weather-desc { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
+    .weather-details { display: flex; gap: 10px; flex-wrap: wrap; }
+    .weather-detail { background: rgba(110,231,183,0.08); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; font-size: 0.82rem; }
+
+    /* FORECAST */
+    .forecast-list { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+    .forecast-day {
+      flex-shrink: 0; background: rgba(110,231,183,0.06); border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px 16px; text-align: center; min-width: 90px;
+      transition: all 0.2s;
+    }
+    .forecast-day:hover { background: rgba(110,231,183,0.12); border-color: var(--accent); }
+    .forecast-day-name { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 8px; }
+    .forecast-emoji { font-size: 1.6rem; margin-bottom: 8px; }
+    .forecast-temp-max { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--accent); }
+    .forecast-temp-min { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+
+    /* AIR QUALITY */
+    .aqi-big { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+    .aqi-circle {
+      width: 72px; height: 72px; border-radius: 50%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem;
+      border: 3px solid currentColor; flex-shrink: 0;
+    }
+    .aqi-label-big { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+    .aqi-desc { font-size: 1.1rem; font-weight: 600; }
+    .aqi-city { color: var(--muted); font-size: 0.85rem; margin-top: 2px; }
+    .aqi-components { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .aqi-component {
+      background: rgba(110,231,183,0.06); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 14px;
+    }
+    .aqi-comp-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .aqi-comp-value { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--accent); margin-top: 2px; }
+    .aqi-comp-unit { font-size: 0.68rem; color: var(--muted); }
+
+    /* NEWS */
+    .news-list { display: flex; flex-direction: column; gap: 10px; }
+    .news-item {
+      display: flex; align-items: flex-start; gap: 12px; padding: 12px;
+      background: rgba(110,231,183,0.04); border-radius: 12px;
+      text-decoration: none; color: var(--text); transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .news-item:hover { border-color: var(--accent); background: rgba(110,231,183,0.08); }
+    .news-flag { font-size: 1.1rem; flex-shrink: 0; margin-top: 2px; }
+    .news-title { font-size: 0.85rem; line-height: 1.5; font-weight: 500; }
+    .news-source { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+
+    /* BULLETINS */
+    .bulletin-list { display: flex; flex-direction: column; gap: 10px; }
+    .bulletin-item {
+      padding: 14px 16px; background: rgba(110,231,183,0.04); border-radius: 12px;
+      border-left: 3px solid var(--accent2); cursor: pointer; transition: all 0.2s;
+    }
+    .bulletin-item:hover { background: rgba(110,231,183,0.08); }
+    .bulletin-date { font-size: 0.72rem; color: var(--muted); margin-bottom: 5px; }
+    .bulletin-preview { font-size: 0.83rem; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+
+    /* CHART */
+    .chart-wrap { position: relative; height: 200px; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+      z-index: 200; backdrop-filter: blur(6px); align-items: center;
+      justify-content: center; padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #0d1f14; border: 1px solid var(--border);
+      border-radius: 20px; padding: 28px; max-width: 580px; width: 100%;
+      max-height: 80vh; overflow-y: auto;
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .modal-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; color: var(--accent); }
+    .modal-close { background: rgba(110,231,183,0.1); border: none; color: var(--muted); width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: color 0.2s; }
+    .modal-close:hover { color: var(--text); }
+    .modal-content { font-size: 0.88rem; line-height: 1.8; white-space: pre-wrap; color: var(--text); }
+
+    .loader { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(110,231,183,0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty { color: var(--muted); font-size: 0.88rem; text-align: center; padding: 24px; }
+
+    @media (max-width: 900px) {
+      .content-grid, .content-grid-3 { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      main { padding: 20px; }
+      header { padding: 16px 20px; }
+      .login-title { font-size: 2.2rem; }
+    }
   </style>
 </head>
 <body>
-<div class="bg-glow bg-glow-1"></div>
-<div class="bg-glow bg-glow-2"></div>
 <div class="app">
   <header>
-    <div class="logo"><div class="logo-dot"></div>Morning Bot</div>
+    <div class="logo"><div class="logo-dot"></div>🌿 Morning Bot</div>
     <div id="user-badge" class="user-badge" style="display:none">
       <div class="user-avatar" id="avatar-initials">?</div>
       <span id="header-name">—</span>
@@ -105,36 +284,60 @@
   <main>
     <!-- LOGIN -->
     <div id="login-section">
+      <div class="login-icon">🌿</div>
       <div class="login-title">Il tuo mattino,<br><span>su misura.</span></div>
-      <p class="login-sub">Inserisci il tuo Telegram Chat ID per accedere alla dashboard.</p>
-      <input class="login-input" type="number" id="chat-id-input" placeholder="Es: 123456789" />
-      <p style="color:var(--muted);font-size:0.8rem">Scrivi a <strong>@userinfobot</strong> su Telegram per trovare il tuo ID</p>
+      <p class="login-sub">Meteo, qualità dell'aria e notizie in un'unica dashboard. Accedi con il tuo Chat ID Telegram.</p>
+      <input class="login-input" type="number" id="chat-id-input" placeholder="Il tuo Chat ID" />
+      <p class="login-hint">Scrivi a <strong style="color:var(--accent)">@userinfobot</strong> su Telegram per trovare il tuo ID</p>
       <button class="tg-login-btn" onclick="doLogin()">Accedi →</button>
-      <p class="error-msg" id="login-error" style="display:none">Utente non trovato. Avvia prima il bot con /start</p>
+      <p class="error-msg" id="login-error">Utente non trovato. Avvia prima il bot con /start</p>
     </div>
 
     <!-- DASHBOARD -->
     <div id="dashboard-section">
       <div class="greeting">
         <h1 id="greeting-text">Buongiorno 👋</h1>
-        <p id="greeting-sub">Ecco la tua situazione di oggi</p>
+        <p id="greeting-sub">Caricamento...</p>
       </div>
+
       <div class="stats-grid" id="stats-grid">
-        <div class="stat-card" style="height:90px"></div>
-        <div class="stat-card" style="height:90px"></div>
-        <div class="stat-card" style="height:90px"></div>
+        <div class="stat-card" style="height:80px"></div>
+        <div class="stat-card" style="height:80px"></div>
+        <div class="stat-card" style="height:80px"></div>
       </div>
+
+      <!-- METEO + ARIA -->
       <div class="content-grid">
         <div class="card">
           <div class="card-title"><div class="card-title-dot"></div>Meteo oggi</div>
           <div id="weather-content"><div class="loader"></div></div>
         </div>
         <div class="card">
-          <div class="card-title"><div class="card-title-dot" style="background:var(--accent2)"></div>Notizie di oggi</div>
+          <div class="card-title"><div class="card-title-dot" style="background:var(--accent3)"></div>Qualità dell'aria</div>
+          <div id="airquality-content"><div class="loader"></div></div>
+        </div>
+      </div>
+
+      <!-- PREVISIONI 7 GIORNI -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title"><div class="card-title-dot" style="background:var(--accent2)"></div>Previsioni 7 giorni</div>
+        <div id="forecast-content"><div class="loader"></div></div>
+      </div>
+
+      <!-- GRAFICO TEMPERATURA -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title"><div class="card-title-dot" style="background:#86efac"></div>Andamento temperatura</div>
+        <div class="chart-wrap"><canvas id="tempChart"></canvas></div>
+      </div>
+
+      <!-- NOTIZIE + STORICO -->
+      <div class="content-grid">
+        <div class="card">
+          <div class="card-title"><div class="card-title-dot" style="background:var(--accent4)"></div>Notizie di oggi</div>
           <div id="news-content"><div class="loader"></div></div>
         </div>
-        <div class="card card-full">
-          <div class="card-title"><div class="card-title-dot" style="background:var(--accent3)"></div>Storico bollettini</div>
+        <div class="card">
+          <div class="card-title"><div class="card-title-dot" style="background:#a78bfa"></div>Storico bollettini</div>
           <div id="bulletins-content"><div class="loader"></div></div>
         </div>
       </div>
@@ -155,13 +358,15 @@
 <script>
   const API = 'http://localhost:8000';
   let currentUser = null;
+  let tempChartInstance = null;
 
+  // ── LOGIN ──
   async function doLogin() {
     const chatId = parseInt(document.getElementById('chat-id-input').value);
     if (!chatId) return;
     try {
       const res = await fetch(`${API}/api/user/${chatId}`);
-      if (!res.ok) throw new Error('not found');
+      if (!res.ok) throw new Error();
       const user = await res.json();
       currentUser = { chat_id: chatId, name: user.name, city: user.city };
       localStorage.setItem('tg_user', JSON.stringify(currentUser));
@@ -173,9 +378,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('chat-id-input').addEventListener('keydown', e => {
-      if (e.key === 'Enter') doLogin();
-    });
+    document.getElementById('chat-id-input')?.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
   });
 
   function logout() {
@@ -185,6 +388,7 @@
     document.getElementById('login-section').style.display = 'flex';
     document.getElementById('user-badge').style.display = 'none';
     document.getElementById('chat-id-input').value = '';
+    if (tempChartInstance) { tempChartInstance.destroy(); tempChartInstance = null; }
   }
 
   function showDashboard(user) {
@@ -195,10 +399,12 @@
     document.getElementById('user-badge').style.display = 'flex';
     const hour = new Date().getHours();
     const greet = hour < 12 ? 'Buongiorno' : hour < 18 ? 'Buon pomeriggio' : 'Buonasera';
-    document.getElementById('greeting-text').textContent = `${greet}, ${user.name} 👋`;
-    document.getElementById('greeting-sub').textContent = `${user.city} · ${new Date().toLocaleDateString('it-IT', {weekday:'long', day:'numeric', month:'long'})}`;
+    document.getElementById('greeting-text').textContent = `${greet}, ${user.name} 🌿`;
+    document.getElementById('greeting-sub').textContent = `${user.city} · ${new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})}`;
     loadStats();
     loadWeather(user.city);
+    loadAirQuality(user.city);
+    loadForecast(user.city);
     loadNews();
     loadBulletins(user.chat_id);
   }
@@ -208,9 +414,9 @@
       const res = await fetch(`${API}/api/stats`);
       const d = await res.json();
       document.getElementById('stats-grid').innerHTML = `
-        <div class="stat-card"><div class="stat-label">Utenti attivi</div><div class="stat-value">${d.active_users}</div></div>
-        <div class="stat-card"><div class="stat-label">Bollettini totali</div><div class="stat-value">${d.total_bulletins}</div></div>
-        <div class="stat-card"><div class="stat-label">Inviati oggi</div><div class="stat-value">${d.today_bulletins}</div></div>
+        <div class="stat-card"><div class="stat-label">🌱 Utenti attivi</div><div class="stat-value">${d.active_users}</div></div>
+        <div class="stat-card"><div class="stat-label">📋 Bollettini totali</div><div class="stat-value">${d.total_bulletins}</div></div>
+        <div class="stat-card"><div class="stat-label">☀️ Inviati oggi</div><div class="stat-value">${d.today_bulletins}</div></div>
       `;
     } catch(e) { document.getElementById('stats-grid').innerHTML = ''; }
   }
@@ -233,6 +439,94 @@
     } catch(e) { document.getElementById('weather-content').innerHTML = '<p class="empty">Meteo non disponibile</p>'; }
   }
 
+  async function loadAirQuality(city) {
+    try {
+      const res = await fetch(`${API}/api/airquality/${encodeURIComponent(city)}`);
+      const a = await res.json();
+      document.getElementById('airquality-content').innerHTML = `
+        <div class="aqi-big">
+          <div class="aqi-circle" style="color:${a.aqi_color};border-color:${a.aqi_color};background:${a.aqi_color}18">
+            <span>${a.aqi}</span>
+            <span class="aqi-label-big">AQI</span>
+          </div>
+          <div>
+            <div class="aqi-desc" style="color:${a.aqi_color}">${a.aqi_label}</div>
+            <div class="aqi-city">Qualità aria a ${city}</div>
+          </div>
+        </div>
+        <div class="aqi-components">
+          <div class="aqi-component"><div class="aqi-comp-label">PM2.5</div><div class="aqi-comp-value">${a.pm2_5}<span class="aqi-comp-unit"> µg/m³</span></div></div>
+          <div class="aqi-component"><div class="aqi-comp-label">PM10</div><div class="aqi-comp-value">${a.pm10}<span class="aqi-comp-unit"> µg/m³</span></div></div>
+          <div class="aqi-component"><div class="aqi-comp-label">NO₂</div><div class="aqi-comp-value">${a.no2}<span class="aqi-comp-unit"> µg/m³</span></div></div>
+          <div class="aqi-component"><div class="aqi-comp-label">O₃</div><div class="aqi-comp-value">${a.o3}<span class="aqi-comp-unit"> µg/m³</span></div></div>
+        </div>`;
+    } catch(e) { document.getElementById('airquality-content').innerHTML = '<p class="empty">Qualità aria non disponibile</p>'; }
+  }
+
+  async function loadForecast(city) {
+    try {
+      const res = await fetch(`${API}/api/weather/forecast/${encodeURIComponent(city)}`);
+      const days = await res.json();
+      const emojis = {Clear:'☀️',Clouds:'☁️',Rain:'🌧️',Drizzle:'🌦️',Thunderstorm:'⛈️',Snow:'❄️',Mist:'🌫️',Fog:'🌫️',Haze:'🌫️'};
+      const dayNames = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+
+      document.getElementById('forecast-content').innerHTML = `
+        <div class="forecast-list">
+          ${days.map(d => {
+            const date = new Date(d.date);
+            const name = dayNames[date.getDay()];
+            return `<div class="forecast-day">
+              <div class="forecast-day-name">${name}</div>
+              <div class="forecast-emoji">${emojis[d.icon]||'🌡️'}</div>
+              <div class="forecast-temp-max">${Math.round(d.temp_max)}°</div>
+              <div class="forecast-temp-min">${Math.round(d.temp_min)}°</div>
+            </div>`;
+          }).join('')}
+        </div>`;
+
+      // Grafico temperatura
+      if (tempChartInstance) tempChartInstance.destroy();
+      const ctx = document.getElementById('tempChart').getContext('2d');
+      tempChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: days.map(d => { const dt = new Date(d.date); return dayNames[dt.getDay()]; }),
+          datasets: [
+            {
+              label: 'Max °C',
+              data: days.map(d => Math.round(d.temp_max)),
+              borderColor: '#6ee7b7',
+              backgroundColor: 'rgba(110,231,183,0.08)',
+              borderWidth: 2, pointRadius: 5,
+              pointBackgroundColor: '#6ee7b7',
+              tension: 0.4, fill: true
+            },
+            {
+              label: 'Min °C',
+              data: days.map(d => Math.round(d.temp_min)),
+              borderColor: '#34d399',
+              backgroundColor: 'rgba(52,211,153,0.04)',
+              borderWidth: 2, pointRadius: 5,
+              pointBackgroundColor: '#34d399',
+              tension: 0.4, fill: true,
+              borderDash: [5,5]
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#6b9e82', font: { family: 'DM Sans' } } } },
+          scales: {
+            x: { ticks: { color: '#6b9e82' }, grid: { color: 'rgba(110,231,183,0.08)' } },
+            y: { ticks: { color: '#6b9e82', callback: v => v+'°' }, grid: { color: 'rgba(110,231,183,0.08)' } }
+          }
+        }
+      });
+    } catch(e) {
+      document.getElementById('forecast-content').innerHTML = '<p class="empty">Previsioni non disponibili</p>';
+    }
+  }
+
   async function loadNews() {
     try {
       const res = await fetch(`${API}/api/news`);
@@ -252,14 +546,14 @@
       const res = await fetch(`${API}/api/bulletins/${chatId}`);
       const bulletins = await res.json();
       if (!bulletins.length) {
-        document.getElementById('bulletins-content').innerHTML = '<p class="empty">Nessun bollettino ancora — il primo arriverà domani alle 8:00!</p>';
+        document.getElementById('bulletins-content').innerHTML = '<p class="empty">Nessun bollettino ancora 🌱<br>Il primo arriverà domani alle 8:00!</p>';
         return;
       }
       document.getElementById('bulletins-content').innerHTML = `
         <div class="bulletin-list">${bulletins.map(b=>`
           <div class="bulletin-item" onclick="openBulletin('${b.sent_at}', \`${b.content.replace(/`/g,'\\`').replace(/\$/g,'\\$')}\`)">
             <div class="bulletin-date">${new Date(b.sent_at).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit'})}</div>
-            <div class="bulletin-preview">${b.content.substring(0,120)}...</div>
+            <div class="bulletin-preview">${b.content.substring(0,110)}...</div>
           </div>`).join('')}
         </div>`;
     } catch(e) { document.getElementById('bulletins-content').innerHTML = '<p class="empty">Storico non disponibile</p>'; }
@@ -270,7 +564,7 @@
     document.getElementById('modal-content').textContent = content;
     document.getElementById('modal-overlay').classList.add('open');
   }
-  function closeModal(e) { if (e.target===document.getElementById('modal-overlay')) closeModalDirect(); }
+  function closeModal(e) { if(e.target===document.getElementById('modal-overlay')) closeModalDirect(); }
   function closeModalDirect() { document.getElementById('modal-overlay').classList.remove('open'); }
 
   const saved = localStorage.getItem('tg_user');

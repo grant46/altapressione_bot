@@ -4,8 +4,9 @@ from fastapi.staticfiles import StaticFiles
 import hashlib
 import hmac
 import os
-import time
 import sys
+import time
+import requests
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,6 +19,7 @@ from weather_api import get_weather
 from news import get_news
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
 app = FastAPI(title="Morning Bot API")
 
@@ -73,6 +75,73 @@ async def weather(city: str):
     if not data:
         raise HTTPException(status_code=404, detail="Città non trovata")
     return data
+
+@app.get("/api/weather/forecast/{city}")
+async def weather_forecast(city: str):
+    try:
+        r = requests.get("https://api.openweathermap.org/data/2.5/forecast", params={
+            "q": city, "appid": WEATHER_API_KEY,
+            "units": "metric", "lang": "it", "cnt": 40
+        }, timeout=10)
+        data = r.json()
+        if r.status_code != 200:
+            raise HTTPException(status_code=404, detail="Città non trovata")
+
+        # Raggruppa per giorno (prendi lettura a mezzogiorno)
+        days = {}
+        for item in data["list"]:
+            date = item["dt_txt"].split(" ")[0]
+            hour = item["dt_txt"].split(" ")[1]
+            if date not in days or hour == "12:00:00":
+                days[date] = {
+                    "date": date,
+                    "temp_max": item["main"]["temp_max"],
+                    "temp_min": item["main"]["temp_min"],
+                    "description": item["weather"][0]["description"].capitalize(),
+                    "icon": item["weather"][0]["main"],
+                    "humidity": item["main"]["humidity"],
+                    "wind_speed": round(item["wind"]["speed"] * 3.6)
+                }
+        return list(days.values())[:7]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/airquality/{city}")
+async def air_quality(city: str):
+    try:
+        # Prima ottieni coordinate dalla città
+        geo_r = requests.get("http://api.openweathermap.org/geo/1.0/direct", params={
+            "q": city, "limit": 1, "appid": WEATHER_API_KEY
+        }, timeout=10)
+        geo = geo_r.json()
+        if not geo:
+            raise HTTPException(status_code=404, detail="Città non trovata")
+
+        lat, lon = geo[0]["lat"], geo[0]["lon"]
+
+        # Poi ottieni qualità aria
+        aq_r = requests.get("http://api.openweathermap.org/data/2.5/air_pollution", params={
+            "lat": lat, "lon": lon, "appid": WEATHER_API_KEY
+        }, timeout=10)
+        aq = aq_r.json()
+        components = aq["list"][0]["components"]
+        aqi = aq["list"][0]["main"]["aqi"]
+
+        aqi_labels = {1: "Buona", 2: "Discreta", 3: "Moderata", 4: "Scarsa", 5: "Pessima"}
+        aqi_colors = {1: "#6ee7b7", 2: "#a3e635", 3: "#fbbf24", 4: "#fb923c", 5: "#f87171"}
+
+        return {
+            "aqi": aqi,
+            "aqi_label": aqi_labels.get(aqi, "N/D"),
+            "aqi_color": aqi_colors.get(aqi, "#6ee7b7"),
+            "pm2_5": round(components.get("pm2_5", 0), 1),
+            "pm10": round(components.get("pm10", 0), 1),
+            "no2": round(components.get("no2", 0), 1),
+            "o3": round(components.get("o3", 0), 1),
+            "co": round(components.get("co", 0), 1),
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/news")
 async def news():
