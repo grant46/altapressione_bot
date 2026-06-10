@@ -7,6 +7,15 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def generate_bulletin(name: str, weather: dict, news: list) -> str:
+    from datetime import datetime
+    import locale
+    try:
+        locale.setlocale(locale.LC_TIME, 'it_IT.UTF-8')
+    except:
+        pass
+    
+    oggi = datetime.now().strftime("%A %d %B %Y").capitalize()
+    ora = datetime.now().strftime("%H:%M")
 
     weather_text = (
         f"Città: {weather['city']}\n"
@@ -24,7 +33,7 @@ Meteo attuale:
 
 Genera SOLO queste sezioni usando ESATTAMENTE questo stile (niente notizie, le aggiungo io dopo):
 
-☀️ Buongiorno *{name}*\\! Oggi è [giorno] [data] 🗓
+☀️ Buongiorno *{name}*\\! Oggi è {oggi} 🗓
 
 ━━━━━━━━━━━━━━━━━
 🌤️ *METEO — [città]*

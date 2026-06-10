@@ -8,7 +8,7 @@ from telegram.ext import (
 )
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-from database import init_db, save_user, get_all_users, deactivate_user
+from database import init_db, save_user, get_all_users, deactivate_user, save_bulletin, save_weather_history
 from news import get_news
 from weather_api import get_weather, weather_emoji
 from ai_bulletin import generate_bulletin
@@ -175,6 +175,9 @@ async def send_daily_bulletin(app: Application):
         try:
             weather = get_weather(city, lat, lon)
             bulletin = generate_bulletin(name, weather, news)
+
+            save_bulletin(chat_id, bulletin, weather, news)
+            save_weather_history(city, weather)
 
             await app.bot.send_message(
                 chat_id=chat_id,

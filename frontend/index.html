@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-theme="dark">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -7,99 +7,84 @@
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
-    :root {
-      --bg: #0a1a0f;
-      --surface: rgba(12,28,16,0.88);
-      --surface2: rgba(18,38,22,0.92);
-      --border: rgba(110,231,183,0.14);
-      --accent: #6ee7b7;
-      --accent2: #34d399;
-      --accent3: #fbbf24;
-      --accent4: #86efac;
-      --text: #ecfdf5;
-      --muted: #6b9e82;
+    :root[data-theme="dark"] {
+      --bg: #0a1a0f; --surface: rgba(12,28,16,0.88); --surface2: rgba(18,38,22,0.92);
+      --border: rgba(110,231,183,0.14); --accent: #6ee7b7; --accent2: #34d399;
+      --accent3: #fbbf24; --accent4: #86efac; --text: #ecfdf5; --muted: #6b9e82;
+      --card-bg: rgba(12,28,16,0.88); --header-bg: rgba(5,15,8,0.75);
+    }
+    :root[data-theme="light"] {
+      --bg: #f0fdf4; --surface: rgba(255,255,255,0.95); --surface2: rgba(240,253,244,0.98);
+      --border: rgba(16,185,129,0.2); --accent: #059669; --accent2: #10b981;
+      --accent3: #d97706; --accent4: #34d399; --text: #064e3b; --muted: #6b7280;
+      --card-bg: rgba(255,255,255,0.95); --header-bg: rgba(240,253,244,0.92);
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; transition: background 0.3s, color 0.3s; }
 
-    /* HERO BG con foto Unsplash natura */
-    .hero-bg {
-      position: fixed; inset: 0; z-index: 0;
-      background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80&auto=format&fit=crop');
-      background-size: cover; background-position: center;
-      filter: brightness(0.18) saturate(1.4);
-    }
-    .hero-overlay {
-      position: fixed; inset: 0; z-index: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 10% 20%, rgba(16,85,40,0.55) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 70% at 90% 85%, rgba(5,50,20,0.6) 0%, transparent 60%),
-        linear-gradient(180deg, rgba(10,26,15,0.3) 0%, rgba(10,26,15,0.7) 100%);
-    }
+    .hero-bg { position: fixed; inset: 0; z-index: 0; background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=1920&q=80&auto=format&fit=crop'); background-size: cover; background-position: center; filter: brightness(0.15) saturate(1.4); transition: filter 0.3s; }
+    [data-theme="light"] .hero-bg { filter: brightness(0.08) saturate(1.2); }
+    .hero-overlay { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 80% 50% at 10% 20%, rgba(16,85,40,0.5) 0%, transparent 60%), radial-gradient(ellipse 60% 70% at 90% 85%, rgba(5,50,20,0.55) 0%, transparent 60%), linear-gradient(180deg, rgba(10,26,15,0.2) 0%, rgba(10,26,15,0.65) 100%); }
+    [data-theme="light"] .hero-overlay { background: radial-gradient(ellipse 100% 100% at 50% 50%, rgba(240,253,244,0.92) 0%, rgba(240,253,244,0.97) 100%); }
 
     .app { position: relative; z-index: 1; }
 
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 40px; border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(24px); background: rgba(5,15,8,0.75);
-      position: sticky; top: 0; z-index: 100;
-    }
-    .logo {
-      font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.15rem;
-      letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; color: var(--accent);
-    }
-    .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.65)} }
-    .user-badge { display: flex; align-items: center; gap: 10px; background: rgba(110,231,183,0.07); border: 1px solid var(--border); border-radius: 100px; padding: 7px 16px; font-size: 0.84rem; }
-    .user-avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #059669); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: #000; }
-    .logout-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.82rem; padding: 2px 5px; border-radius: 5px; transition: color 0.2s; }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 18px 40px; border-bottom: 1px solid var(--border); backdrop-filter: blur(24px); background: var(--header-bg); position: sticky; top: 0; z-index: 100; }
+    .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; color: var(--accent); }
+    .logo-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 12px var(--accent); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.6)} }
+
+    .header-right { display: flex; align-items: center; gap: 12px; }
+
+    .theme-toggle { background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 6px 14px; font-size: 0.82rem; cursor: pointer; color: var(--text); font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .theme-toggle:hover { border-color: var(--accent); }
+
+    .user-badge { display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 100px; padding: 7px 16px; font-size: 0.82rem; }
+    .user-avatar { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #059669); display: flex; align-items: center; justify-content: center; font-size: 0.72rem; font-weight: 700; color: #fff; }
+    .logout-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.8rem; padding: 2px 5px; border-radius: 5px; transition: color 0.2s; }
     .logout-btn:hover { color: #f87171; }
 
-    main { padding: 36px 40px; max-width: 1300px; margin: 0 auto; }
+    main { padding: 32px 40px; max-width: 1300px; margin: 0 auto; }
 
     /* LOGIN */
-    #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 78vh; text-align: center; gap: 18px; }
-    .login-hero {
-      position: relative; width: 100%; max-width: 600px;
-      border-radius: 24px; overflow: hidden; margin-bottom: 8px;
-      border: 1px solid var(--border);
-    }
-    .login-hero img { width: 100%; height: 220px; object-fit: cover; filter: brightness(0.6) saturate(1.3); display: block; }
-    .login-hero-text {
-      position: absolute; inset: 0; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; gap: 4px;
-    }
-    .login-title { font-family: 'Syne', sans-serif; font-size: 2.6rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; }
-    .login-title span { color: var(--accent); }
-    .login-sub-small { color: rgba(255,255,255,0.6); font-size: 0.9rem; }
-    .login-sub { color: var(--muted); font-size: 0.95rem; max-width: 360px; line-height: 1.7; }
-    .login-input { background: rgba(110,231,183,0.07); border: 1px solid var(--border); border-radius: 14px; padding: 14px 20px; font-size: 1rem; color: var(--text); width: 280px; font-family: 'DM Sans', sans-serif; outline: none; transition: all 0.2s; text-align: center; }
-    .login-input:focus { border-color: var(--accent); background: rgba(110,231,183,0.12); box-shadow: 0 0 0 3px rgba(110,231,183,0.1); }
-    .login-hint { color: var(--muted); font-size: 0.76rem; }
-    .tg-login-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: #052e16; border: none; border-radius: 14px; padding: 13px 30px; font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 78vh; text-align: center; gap: 16px; }
+    .login-hero { position: relative; width: 100%; max-width: 560px; border-radius: 22px; overflow: hidden; margin-bottom: 6px; border: 1px solid var(--border); }
+    .login-hero img { width: 100%; height: 200px; object-fit: cover; filter: brightness(0.55) saturate(1.3); display: block; }
+    .login-hero-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+    .login-title { font-family: 'Syne', sans-serif; font-size: 2.4rem; font-weight: 800; letter-spacing: -0.04em; line-height: 1.1; color: #fff; }
+    .login-title span { color: #6ee7b7; }
+    .login-sub-small { color: rgba(255,255,255,0.55); font-size: 0.85rem; }
+    .login-sub { color: var(--muted); font-size: 0.92rem; max-width: 340px; line-height: 1.7; }
+    .login-input { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 13px 20px; font-size: 1rem; color: var(--text); width: 270px; font-family: 'DM Sans', sans-serif; outline: none; transition: all 0.2s; text-align: center; }
+    .login-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(110,231,183,0.1); }
+    .login-hint { color: var(--muted); font-size: 0.74rem; }
+    .tg-login-btn { display: inline-flex; align-items: center; gap: 10px; background: var(--accent); color: #052e16; border: none; border-radius: 14px; padding: 13px 28px; font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
     .tg-login-btn:hover { background: var(--accent2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(110,231,183,0.2); }
-    .error-msg { color: #f87171; font-size: 0.83rem; display: none; }
+    .error-msg { color: #f87171; font-size: 0.82rem; display: none; }
 
     /* DASHBOARD */
     #dashboard-section { display: none; }
-    .greeting { margin-bottom: 24px; }
-    .greeting h1 { font-family: 'Syne', sans-serif; font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; }
-    .greeting p { color: var(--muted); margin-top: 3px; font-size: 0.88rem; }
+    .greeting { margin-bottom: 22px; }
+    .greeting h1 { font-family: 'Syne', sans-serif; font-size: 1.85rem; font-weight: 800; letter-spacing: -0.03em; }
+    .greeting p { color: var(--muted); margin-top: 3px; font-size: 0.87rem; }
 
-    .stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 18px; }
     .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px 20px; position: relative; overflow: hidden; backdrop-filter: blur(12px); }
     .stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
     .stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 6px; }
     .stat-value { font-family: 'Syne', sans-serif; font-size: 1.7rem; font-weight: 700; color: var(--accent); }
 
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
 
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 22px; backdrop-filter: blur(14px); }
-    .card-span2 { grid-column: span 2; }
-    .card-title { font-family: 'Syne', sans-serif; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .card-title { font-family: 'Syne', sans-serif; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+    .card-title-left { display: flex; align-items: center; gap: 8px; }
     .card-title-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+    /* WIDGET SHARE */
+    .share-btn { display: inline-flex; align-items: center; gap: 5px; background: rgba(110,231,183,0.1); border: 1px solid var(--border); border-radius: 100px; padding: 3px 10px; font-size: 0.68rem; cursor: pointer; color: var(--accent); text-decoration: none; transition: all 0.2s; font-family: 'DM Sans', sans-serif; }
+    .share-btn:hover { background: rgba(110,231,183,0.18); }
 
     /* WEATHER */
     .weather-big { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
@@ -107,79 +92,80 @@
     .weather-temp { font-family: 'Syne', sans-serif; font-size: 2.6rem; font-weight: 800; letter-spacing: -0.04em; color: var(--accent); }
     .weather-desc { color: var(--muted); font-size: 0.82rem; margin-top: 2px; }
     .weather-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .weather-detail { background: rgba(110,231,183,0.07); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 2px; }
-    .weather-detail-label { font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-    .weather-detail-value { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--text); }
+    .weather-detail { background: rgba(110,231,183,0.06); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+    .weather-detail-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+    .weather-detail-value { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.98rem; color: var(--text); margin-top: 2px; }
+    .sun-row { display: flex; gap: 12px; margin-top: 10px; }
+    .sun-item { flex: 1; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.15); border-radius: 10px; padding: 8px 12px; font-size: 0.8rem; text-align: center; }
+    .sun-label { font-size: 0.64rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .sun-value { font-family: 'Syne', sans-serif; font-weight: 700; color: var(--accent3); margin-top: 1px; }
 
     /* FORECAST */
     .forecast-list { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
     .forecast-day { flex-shrink: 0; background: rgba(110,231,183,0.05); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; text-align: center; min-width: 82px; transition: all 0.2s; }
     .forecast-day:hover { background: rgba(110,231,183,0.1); border-color: var(--accent); }
-    .forecast-day-name { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; }
+    .forecast-day-name { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 6px; }
     .forecast-emoji { font-size: 1.5rem; margin-bottom: 6px; }
     .forecast-temp-max { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem; color: var(--accent); }
-    .forecast-temp-min { font-size: 0.74rem; color: var(--muted); margin-top: 1px; }
-    .forecast-desc { font-size: 0.65rem; color: var(--muted); margin-top: 4px; line-height: 1.3; }
+    .forecast-temp-min { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
 
-    /* AIR QUALITY */
+    /* AQI */
     .aqi-big { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
-    .aqi-circle { width: 68px; height: 68px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; border: 3px solid currentColor; flex-shrink: 0; }
-    .aqi-label-big { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
-    .aqi-desc { font-size: 1rem; font-weight: 700; }
-    .aqi-city { color: var(--muted); font-size: 0.8rem; margin-top: 2px; }
+    .aqi-circle { width: 66px; height: 66px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.3rem; border: 3px solid currentColor; flex-shrink: 0; }
+    .aqi-label-big { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+    .aqi-desc { font-size: 0.95rem; font-weight: 700; }
+    .aqi-city { color: var(--muted); font-size: 0.78rem; margin-top: 2px; }
     .aqi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .aqi-component { background: rgba(110,231,183,0.06); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
-    .aqi-comp-label { font-size: 0.67rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-    .aqi-comp-value { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--accent); margin-top: 2px; }
-    .aqi-comp-unit { font-size: 0.65rem; color: var(--muted); }
+    .aqi-comp-label { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .aqi-comp-value { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.98rem; color: var(--accent); margin-top: 2px; }
+    .aqi-comp-unit { font-size: 0.62rem; color: var(--muted); }
 
-    /* FATTO CURIOSO */
-    .fact-card { background: linear-gradient(135deg, rgba(110,231,183,0.08), rgba(52,211,153,0.04)); border: 1px solid rgba(110,231,183,0.2); border-radius: 20px; padding: 22px; backdrop-filter: blur(14px); display: flex; gap: 16px; align-items: flex-start; }
-    .fact-icon { font-size: 2rem; flex-shrink: 0; }
-    .fact-title { font-family: 'Syne', sans-serif; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 8px; }
-    .fact-text { font-size: 0.88rem; line-height: 1.7; color: var(--text); }
+    /* FACT */
+    .fact-card { background: linear-gradient(135deg, rgba(110,231,183,0.07), rgba(52,211,153,0.03)); border: 1px solid rgba(110,231,183,0.18); border-radius: 20px; padding: 20px 22px; backdrop-filter: blur(14px); display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px; }
+    .fact-icon { font-size: 1.8rem; flex-shrink: 0; }
+    .fact-title { font-family: 'Syne', sans-serif; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 6px; }
+    .fact-text { font-size: 0.86rem; line-height: 1.7; color: var(--text); }
 
     /* NEWS */
-    .news-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
-    .news-tab { background: rgba(110,231,183,0.06); border: 1px solid var(--border); border-radius: 100px; padding: 5px 14px; font-size: 0.76rem; cursor: pointer; transition: all 0.2s; color: var(--muted); font-family: 'DM Sans', sans-serif; }
-    .news-tab.active { background: rgba(110,231,183,0.15); border-color: var(--accent); color: var(--accent); }
+    .news-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+    .news-tab { background: var(--surface2); border: 1px solid var(--border); border-radius: 100px; padding: 5px 14px; font-size: 0.74rem; cursor: pointer; transition: all 0.2s; color: var(--muted); font-family: 'DM Sans', sans-serif; }
+    .news-tab.active { background: rgba(110,231,183,0.12); border-color: var(--accent); color: var(--accent); }
     .news-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .news-item { display: flex; align-items: flex-start; gap: 10px; padding: 12px; background: rgba(110,231,183,0.04); border-radius: 12px; text-decoration: none; color: var(--text); transition: all 0.2s; border: 1px solid transparent; }
     .news-item:hover { border-color: var(--accent); background: rgba(110,231,183,0.08); }
     .news-flag { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
     .news-title { font-size: 0.82rem; line-height: 1.5; font-weight: 500; }
-    .news-source { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .news-source { font-size: 0.66rem; color: var(--muted); margin-top: 2px; }
 
     /* BULLETINS */
-    .bulletin-list { display: flex; flex-direction: column; gap: 10px; }
-    .bulletin-item { padding: 14px 16px; background: rgba(110,231,183,0.04); border-radius: 12px; border-left: 3px solid var(--accent2); cursor: pointer; transition: all 0.2s; }
+    .bulletin-list { display: flex; flex-direction: column; gap: 9px; }
+    .bulletin-item { padding: 13px 15px; background: rgba(110,231,183,0.04); border-radius: 12px; border-left: 3px solid var(--accent2); cursor: pointer; transition: all 0.2s; }
     .bulletin-item:hover { background: rgba(110,231,183,0.08); }
-    .bulletin-date { font-size: 0.7rem; color: var(--muted); margin-bottom: 5px; }
-    .bulletin-preview { font-size: 0.82rem; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bulletin-date { font-size: 0.68rem; color: var(--muted); margin-bottom: 4px; }
+    .bulletin-preview { font-size: 0.8rem; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-    /* CHART */
-    .chart-wrap { position: relative; height: 190px; }
+    /* CHARTS */
+    .chart-wrap { position: relative; height: 185px; }
 
     /* MODAL */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 200; backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 20px; }
     .modal-overlay.open { display: flex; }
-    .modal { background: #0a1a0f; border: 1px solid var(--border); border-radius: 20px; padding: 26px; max-width: 560px; width: 100%; max-height: 80vh; overflow-y: auto; }
+    .modal { background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 24px; max-width: 540px; width: 100%; max-height: 80vh; overflow-y: auto; }
     .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
     .modal-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--accent); }
-    .modal-close { background: rgba(110,231,183,0.1); border: none; color: var(--muted); width: 28px; height: 28px; border-radius: 7px; cursor: pointer; font-size: 0.85rem; transition: color 0.2s; }
-    .modal-close:hover { color: var(--text); }
-    .modal-content { font-size: 0.86rem; line-height: 1.8; white-space: pre-wrap; }
+    .modal-close { background: var(--surface2); border: none; color: var(--muted); width: 28px; height: 28px; border-radius: 7px; cursor: pointer; font-size: 0.85rem; }
+    .modal-content { font-size: 0.85rem; line-height: 1.8; white-space: pre-wrap; }
 
     .loader { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(110,231,183,0.15); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .empty { color: var(--muted); font-size: 0.86rem; text-align: center; padding: 22px; }
+    .empty { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 22px; }
 
     @media (max-width: 900px) {
       .grid-2, .grid-3, .news-grid { grid-template-columns: 1fr; }
       .stats-grid { grid-template-columns: 1fr 1fr; }
-      main { padding: 20px; }
-      header { padding: 14px 20px; }
-      .card-span2 { grid-column: span 1; }
+      main { padding: 18px 16px; }
+      header { padding: 14px 18px; }
     }
   </style>
 </head>
@@ -189,10 +175,13 @@
 <div class="app">
   <header>
     <div class="logo"><div class="logo-dot"></div>🌿 Alta Pressione</div>
-    <div id="user-badge" class="user-badge" style="display:none">
-      <div class="user-avatar" id="avatar-initials">?</div>
-      <span id="header-name">—</span>
-      <button class="logout-btn" onclick="logout()" title="Esci">✕</button>
+    <div class="header-right">
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ Light</button>
+      <div id="user-badge" class="user-badge" style="display:none">
+        <div class="user-avatar" id="avatar-initials">?</div>
+        <span id="header-name">—</span>
+        <button class="logout-btn" onclick="logout()" title="Esci">✕</button>
+      </div>
     </div>
   </header>
 
@@ -221,58 +210,64 @@
       </div>
 
       <div class="stats-grid" id="stats-grid">
-        <div class="stat-card" style="height:76px"></div>
-        <div class="stat-card" style="height:76px"></div>
-        <div class="stat-card" style="height:76px"></div>
+        <div class="stat-card" style="height:74px"></div>
+        <div class="stat-card" style="height:74px"></div>
+        <div class="stat-card" style="height:74px"></div>
       </div>
 
-      <!-- METEO + ARIA -->
       <div class="grid-2">
         <div class="card">
-          <div class="card-title"><div class="card-title-dot"></div>Meteo oggi</div>
+          <div class="card-title">
+            <div class="card-title-left"><div class="card-title-dot"></div>Meteo oggi</div>
+            <a class="share-btn" id="widget-link" href="#" target="_blank">🔗 Condividi</a>
+          </div>
           <div id="weather-content"><div class="loader"></div></div>
         </div>
         <div class="card">
-          <div class="card-title"><div class="card-title-dot" style="background:var(--accent3)"></div>Qualità dell'aria</div>
+          <div class="card-title"><div class="card-title-left"><div class="card-title-dot" style="background:var(--accent3)"></div>Qualità dell'aria</div></div>
           <div id="airquality-content"><div class="loader"></div></div>
         </div>
       </div>
 
-      <!-- PREVISIONI + GRAFICO -->
       <div class="grid-2">
         <div class="card">
-          <div class="card-title"><div class="card-title-dot" style="background:var(--accent2)"></div>Previsioni 7 giorni</div>
+          <div class="card-title"><div class="card-title-left"><div class="card-title-dot" style="background:var(--accent2)"></div>Previsioni 7 giorni</div></div>
           <div id="forecast-content"><div class="loader"></div></div>
         </div>
         <div class="card">
-          <div class="card-title"><div class="card-title-dot" style="background:#86efac"></div>Andamento temperatura</div>
+          <div class="card-title"><div class="card-title-left"><div class="card-title-dot" style="background:#86efac"></div>Andamento temperatura</div></div>
           <div class="chart-wrap"><canvas id="tempChart"></canvas></div>
         </div>
       </div>
 
-      <!-- FATTO CURIOSO -->
-      <div class="fact-card" style="margin-bottom:18px" id="fact-card">
+      <!-- STORICO 30 GIORNI -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title"><div class="card-title-left"><div class="card-title-dot" style="background:#a78bfa"></div>Storico temperatura — ultimi 30 giorni</div></div>
+        <div class="chart-wrap"><canvas id="historyChart"></canvas></div>
+      </div>
+
+      <div class="fact-card" id="fact-card">
         <div class="fact-icon">🧠</div>
         <div>
           <div class="fact-title">Lo sapevi?</div>
-          <div class="fact-text" id="fact-text">Caricamento curiosità del giorno...</div>
+          <div class="fact-text" id="fact-text">Caricamento...</div>
         </div>
       </div>
 
-      <!-- NOTIZIE -->
-      <div class="card" style="margin-bottom:18px">
-        <div class="card-title"><div class="card-title-dot" style="background:var(--accent4)"></div>Notizie di oggi</div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">
+          <div class="card-title-left"><div class="card-title-dot" style="background:var(--accent4)"></div>Notizie di oggi</div>
+        </div>
         <div class="news-tabs">
-          <button class="news-tab active" onclick="filterNews('all', this)">Tutte</button>
-          <button class="news-tab" onclick="filterNews('it', this)">🇮🇹 Italia</button>
-          <button class="news-tab" onclick="filterNews('world', this)">🌍 Mondo</button>
+          <button class="news-tab active" onclick="filterNews('all',this)">Tutte</button>
+          <button class="news-tab" onclick="filterNews('it',this)">🇮🇹 Italia</button>
+          <button class="news-tab" onclick="filterNews('world',this)">🌍 Mondo</button>
         </div>
         <div class="news-grid" id="news-content"><div class="loader"></div></div>
       </div>
 
-      <!-- STORICO BOLLETTINI -->
       <div class="card">
-        <div class="card-title"><div class="card-title-dot" style="background:#a78bfa"></div>Storico bollettini</div>
+        <div class="card-title"><div class="card-title-left"><div class="card-title-dot" style="background:#f472b6"></div>Storico bollettini</div></div>
         <div id="bulletins-content"><div class="loader"></div></div>
       </div>
     </div>
@@ -293,20 +288,46 @@
   const API = 'http://localhost:8000';
   let currentUser = null;
   let tempChartInstance = null;
+  let historyChartInstance = null;
   let allNews = [];
 
   const FACTS = [
     "Le foreste coprono circa il 31% della superficie terrestre e ospitano oltre l'80% delle specie animali terrestri.",
-    "Un albero maturo può assorbire fino a 22 kg di CO₂ all'anno e rilasciare ossigeno sufficiente per 2 persone.",
+    "Un albero maturo può assorbire fino a 22 kg di CO₂ all'anno e rilasciare ossigeno per 2 persone.",
     "L'oceano produce più del 50% dell'ossigeno che respiriamo, grazie al fitoplancton marino.",
-    "Le api impollinano circa un terzo di tutto il cibo che mangiamo. Senza di loro, l'agricoltura mondiale collasserebbe.",
-    "Il suolo sano contiene più organismi viventi per centimetro cubo di quanti siano gli esseri umani sulla Terra.",
-    "La Terra riceve ogni ora più energia solare di quanta l'umanità ne consumi in un anno intero.",
-    "Un singolo temporale può generare energia sufficiente a soddisfare il fabbisogno elettrico di una città per 20 minuti.",
-    "Il vento più veloce mai registrato sulla Terra è stato di 408 km/h, durante un ciclone in Australia nel 1996.",
-    "L'umidità relativa dell'aria influenza la percezione della temperatura fino a 8-10°C in più o in meno.",
-    "Il 97% dell'acqua sulla Terra è salata. Di quella dolce disponibile, il 68% è intrappolata nei ghiacciai."
+    "Le api impollinano circa un terzo di tutto il cibo che mangiamo.",
+    "Il suolo sano contiene più organismi per cm³ di quanti siano gli esseri umani sulla Terra.",
+    "La Terra riceve ogni ora più energia solare di quanta l'umanità ne consumi in un anno.",
+    "Un singolo temporale può generare energia sufficiente per una città per 20 minuti.",
+    "Il vento più veloce mai registrato è stato di 408 km/h, in Australia nel 1996.",
+    "L'umidità relativa influenza la percezione della temperatura fino a 8-10°C.",
+    "Il 97% dell'acqua sulla Terra è salata. Di quella dolce, il 68% è nei ghiacciai."
   ];
+
+  // ── THEME ──
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.getElementById('theme-btn').textContent = isDark ? '🌙 Dark' : '☀️ Light';
+    localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    if (tempChartInstance) updateChartColors();
+    if (historyChartInstance) updateChartColors();
+  }
+
+  function updateChartColors() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const gridColor = isDark ? 'rgba(110,231,183,0.07)' : 'rgba(5,150,105,0.1)';
+    const tickColor = isDark ? '#6b9e82' : '#6b7280';
+    [tempChartInstance, historyChartInstance].forEach(chart => {
+      if (!chart) return;
+      chart.options.scales.x.ticks.color = tickColor;
+      chart.options.scales.y.ticks.color = tickColor;
+      chart.options.scales.x.grid.color = gridColor;
+      chart.options.scales.y.grid.color = gridColor;
+      chart.update();
+    });
+  }
 
   // ── LOGIN ──
   async function doLogin() {
@@ -327,6 +348,9 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('chat-id-input')?.addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    document.getElementById('theme-btn').textContent = savedTheme === 'dark' ? '☀️ Light' : '🌙 Dark';
   });
 
   function logout() {
@@ -337,6 +361,7 @@
     document.getElementById('user-badge').style.display = 'none';
     document.getElementById('chat-id-input').value = '';
     if (tempChartInstance) { tempChartInstance.destroy(); tempChartInstance = null; }
+    if (historyChartInstance) { historyChartInstance.destroy(); historyChartInstance = null; }
   }
 
   function showDashboard(user) {
@@ -345,6 +370,7 @@
     document.getElementById('avatar-initials').textContent = user.name?.charAt(0)?.toUpperCase() || '?';
     document.getElementById('header-name').textContent = user.name;
     document.getElementById('user-badge').style.display = 'flex';
+    document.getElementById('widget-link').href = `${API}/meteo/${encodeURIComponent(user.city)}`;
     const hour = new Date().getHours();
     const greet = hour < 12 ? 'Buongiorno' : hour < 18 ? 'Buon pomeriggio' : 'Buonasera';
     document.getElementById('greeting-text').textContent = `${greet}, ${user.name} 🌿`;
@@ -354,13 +380,13 @@
     loadWeather(user.city);
     loadAirQuality(user.city);
     loadForecast(user.city);
+    loadHistory(user.city);
     loadNews();
     loadBulletins(user.chat_id);
   }
 
   function loadFact() {
-    const idx = new Date().getDate() % FACTS.length;
-    document.getElementById('fact-text').textContent = FACTS[idx];
+    document.getElementById('fact-text').textContent = FACTS[new Date().getDate() % FACTS.length];
   }
 
   async function loadStats() {
@@ -379,8 +405,6 @@
       const res = await fetch(`${API}/api/weather/${encodeURIComponent(city)}`);
       const w = await res.json();
       const emojis = {Clear:'☀️',Clouds:'☁️',Rain:'🌧️',Drizzle:'🌦️',Thunderstorm:'⛈️',Snow:'❄️',Mist:'🌫️',Fog:'🌫️',Haze:'🌫️'};
-      const uvIdx = Math.floor(Math.random()*8)+1;
-      const pressure = 1013 + Math.floor(Math.random()*20-10);
       document.getElementById('weather-content').innerHTML = `
         <div class="weather-big">
           <div class="weather-emoji">${emojis[w.icon]||'🌡️'}</div>
@@ -390,7 +414,13 @@
           <div class="weather-detail"><div class="weather-detail-label">💧 Umidità</div><div class="weather-detail-value">${w.humidity}%</div></div>
           <div class="weather-detail"><div class="weather-detail-label">💨 Vento</div><div class="weather-detail-value">${w.wind_speed} km/h</div></div>
           <div class="weather-detail"><div class="weather-detail-label">🌡️ Percepita</div><div class="weather-detail-value">${w.feels_like}°C</div></div>
-          <div class="weather-detail"><div class="weather-detail-label">🔵 Pressione</div><div class="weather-detail-value">${pressure} hPa</div></div>
+          <div class="weather-detail"><div class="weather-detail-label">🔵 Pressione</div><div class="weather-detail-value">${w.pressure||1013} hPa</div></div>
+          <div class="weather-detail"><div class="weather-detail-label">👁️ Visibilità</div><div class="weather-detail-value">${w.visibility_km||10} km</div></div>
+          <div class="weather-detail"><div class="weather-detail-label">☀️ UV Index</div><div class="weather-detail-value">${w.uv_index||'N/D'}</div></div>
+        </div>
+        <div class="sun-row">
+          <div class="sun-item"><div class="sun-label">🌅 Alba</div><div class="sun-value">${w.sunrise||'--'}</div></div>
+          <div class="sun-item"><div class="sun-label">🌇 Tramonto</div><div class="sun-value">${w.sunset||'--'}</div></div>
         </div>`;
     } catch(e) { document.getElementById('weather-content').innerHTML = '<p class="empty">Meteo non disponibile</p>'; }
   }
@@ -404,10 +434,7 @@
           <div class="aqi-circle" style="color:${a.aqi_color};border-color:${a.aqi_color};background:${a.aqi_color}18">
             <span>${a.aqi}</span><span class="aqi-label-big">AQI</span>
           </div>
-          <div>
-            <div class="aqi-desc" style="color:${a.aqi_color}">${a.aqi_label}</div>
-            <div class="aqi-city">Qualità aria a ${city}</div>
-          </div>
+          <div><div class="aqi-desc" style="color:${a.aqi_color}">${a.aqi_label}</div><div class="aqi-city">Qualità aria a ${city}</div></div>
         </div>
         <div class="aqi-grid">
           <div class="aqi-component"><div class="aqi-comp-label">PM2.5</div><div class="aqi-comp-value">${a.pm2_5}<span class="aqi-comp-unit"> µg/m³</span></div></div>
@@ -425,20 +452,20 @@
       const emojis = {Clear:'☀️',Clouds:'☁️',Rain:'🌧️',Drizzle:'🌦️',Thunderstorm:'⛈️',Snow:'❄️',Mist:'🌫️',Fog:'🌫️',Haze:'🌫️'};
       const dayNames = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
       document.getElementById('forecast-content').innerHTML = `
-        <div class="forecast-list">
-          ${days.map(d => {
-            const date = new Date(d.date+'T12:00:00');
-            return `<div class="forecast-day">
-              <div class="forecast-day-name">${dayNames[date.getDay()]}</div>
-              <div class="forecast-emoji">${emojis[d.icon]||'🌡️'}</div>
-              <div class="forecast-temp-max">${Math.round(d.temp_max)}°</div>
-              <div class="forecast-temp-min">${Math.round(d.temp_min)}°</div>
-              <div class="forecast-desc">${d.description}</div>
-            </div>`;
-          }).join('')}
-        </div>`;
+        <div class="forecast-list">${days.map(d => {
+          const dt = new Date(d.date+'T12:00:00');
+          return `<div class="forecast-day">
+            <div class="forecast-day-name">${dayNames[dt.getDay()]}</div>
+            <div class="forecast-emoji">${emojis[d.icon]||'🌡️'}</div>
+            <div class="forecast-temp-max">${Math.round(d.temp_max)}°</div>
+            <div class="forecast-temp-min">${Math.round(d.temp_min)}°</div>
+          </div>`;
+        }).join('')}</div>`;
 
       if (tempChartInstance) tempChartInstance.destroy();
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const gridColor = isDark ? 'rgba(110,231,183,0.07)' : 'rgba(5,150,105,0.1)';
+      const tickColor = isDark ? '#6b9e82' : '#6b7280';
       const ctx = document.getElementById('tempChart').getContext('2d');
       tempChartInstance = new Chart(ctx, {
         type: 'line',
@@ -449,16 +476,39 @@
             { label: 'Min °C', data: days.map(d => Math.round(d.temp_min)), borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.03)', borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#34d399', tension: 0.4, fill: true, borderDash: [5,4] }
           ]
         },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { labels: { color: '#6b9e82', font: { family: 'DM Sans', size: 11 } } } },
-          scales: {
-            x: { ticks: { color: '#6b9e82', font: { size: 11 } }, grid: { color: 'rgba(110,231,183,0.07)' } },
-            y: { ticks: { color: '#6b9e82', font: { size: 11 }, callback: v => v+'°' }, grid: { color: 'rgba(110,231,183,0.07)' } }
-          }
-        }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: tickColor, font: { family: 'DM Sans', size: 11 } } } }, scales: { x: { ticks: { color: tickColor, font: { size: 11 } }, grid: { color: gridColor } }, y: { ticks: { color: tickColor, font: { size: 11 }, callback: v => v+'°' }, grid: { color: gridColor } } } }
       });
     } catch(e) { document.getElementById('forecast-content').innerHTML = '<p class="empty">Previsioni non disponibili</p>'; }
+  }
+
+  async function loadHistory(city) {
+    try {
+      const res = await fetch(`${API}/api/weather/history/${encodeURIComponent(city)}?days=30`);
+      const data = await res.json();
+      if (!data.length) {
+        document.getElementById('historyChart').parentElement.innerHTML = '<p class="empty">Storico non ancora disponibile — si popola automaticamente ogni mattina 🌱</p>';
+        return;
+      }
+      if (historyChartInstance) historyChartInstance.destroy();
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const gridColor = isDark ? 'rgba(167,139,250,0.07)' : 'rgba(124,58,237,0.08)';
+      const tickColor = isDark ? '#6b9e82' : '#6b7280';
+      const ctx = document.getElementById('historyChart').getContext('2d');
+      historyChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map(d => { const dt = new Date(d.date); return `${dt.getDate()}/${dt.getMonth()+1}`; }),
+          datasets: [
+            { label: 'Temp media °C', data: data.map(d => d.avg_temp), borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.07)', borderWidth: 2.5, pointRadius: 3, tension: 0.4, fill: true },
+            { label: 'Max °C', data: data.map(d => d.max_temp), borderColor: '#6ee7b7', backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 2, tension: 0.4, borderDash: [4,3] },
+            { label: 'Min °C', data: data.map(d => d.min_temp), borderColor: '#34d399', backgroundColor: 'transparent', borderWidth: 1.5, pointRadius: 2, tension: 0.4, borderDash: [4,3] }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: tickColor, font: { family: 'DM Sans', size: 10 } } } }, scales: { x: { ticks: { color: tickColor, font: { size: 10 }, maxTicksLimit: 10 }, grid: { color: gridColor } }, y: { ticks: { color: tickColor, font: { size: 10 }, callback: v => v+'°' }, grid: { color: gridColor } } } }
+      });
+    } catch(e) {
+      document.getElementById('historyChart').parentElement.innerHTML = '<p class="empty">Storico non disponibile</p>';
+    }
   }
 
   async function loadNews() {
@@ -481,9 +531,9 @@
   function filterNews(filter, btn) {
     document.querySelectorAll('.news-tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
-    if (filter === 'all') renderNews(allNews);
-    else if (filter === 'it') renderNews(allNews.filter(n => n.lang === '🇮🇹'));
-    else renderNews(allNews.filter(n => n.lang === '🌍'));
+    if (filter==='all') renderNews(allNews);
+    else if (filter==='it') renderNews(allNews.filter(n=>n.lang==='🇮🇹'));
+    else renderNews(allNews.filter(n=>n.lang==='🌍'));
   }
 
   async function loadBulletins(chatId) {
